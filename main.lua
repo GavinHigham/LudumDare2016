@@ -8,7 +8,26 @@
 require("Animation")
 explosions = {}
 robot = {x = 400, y = 300, vel = 1, sprite = nil}
+tiles = nil
 laserIsOn = false
+tileWidth, tileHeight = 100, 100
+
+function createTile()
+	local tile = {up = false}
+	return tile
+end
+
+function createTiles(numcols, numrows)
+	local tiles = {}
+	for i = 1, numrows do
+		local row = {}
+		for j = 1, numcols do
+			table.insert(row, createTile())
+		end
+		table.insert(tiles, row)
+	end
+	return tiles
+end
 
 function love.load()
 	explosionFrames = {}
@@ -16,6 +35,8 @@ function love.load()
 		table.insert(explosionFrames, love.graphics.newImage(string.format("sprites/explosion/%.4u.png", i)))
 	end
 	robot.sprite = love.graphics.newImage("sprites/blob.png")
+	tiles = createTiles(15, 15)
+	tiles[2][2].up = true
 end
 
 function love.update(dt)
@@ -36,10 +57,10 @@ function love.update(dt)
 	else
 		laserIsOn = false
 	end
-	moveRobot()
+	robot.update()
 end
 
-function moveRobot()
+function robot.update()
 	if love.keyboard.isScancodeDown("w") then
 		robot.y = robot.y - robot.vel
 	end
@@ -55,6 +76,15 @@ function moveRobot()
 end
 
 function love.draw()
+
+	for i, row in ipairs(tiles) do
+		for j, tile in ipairs(row) do
+			local mode = "line"
+			if tile.up then mode = "fill" end
+			love.graphics.rectangle(mode, i*tileWidth, j*tileHeight, tileWidth, tileHeight)
+		end
+	end
+
 	for i, explosion in ipairs(explosions) do
 		Animation.draw(explosion, explosion.x, explosion.y)
 	end
