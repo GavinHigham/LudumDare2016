@@ -11,12 +11,10 @@ robot = {x = 400, y = 300, vel = 1, sprite = nil}
 laserIsOn = false
 
 function love.load()
-	Animations = {}
 	explosionFrames = {}
 	for i = 1, 100 do
 		table.insert(explosionFrames, love.graphics.newImage(string.format("sprites/explosion/%.4u.png", i)))
 	end
-	--Animations.explosion = Animation.new(explosionFrames)
 	robot.sprite = love.graphics.newImage("sprites/blob.png")
 end
 
@@ -55,11 +53,6 @@ function moveRobot()
 		robot.x = robot.x + robot.vel
 	end
 end
-
---[[function love.mousepressed(x, y, button)
-	if button == "l" then
-	end
-end]]
 
 function love.draw()
 	for i, explosion in ipairs(explosions) do
