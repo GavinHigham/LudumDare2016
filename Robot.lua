@@ -33,6 +33,10 @@ end
 function robot.checkRange(x, y)
 	local col = math.floor(x / tileWidth)
 	local row = math.floor(y / tileHeight)
+	return robot.checkRangeCell(row, col)
+end
+
+function robot.checkRangeCell(row, col)
 	local robCol = math.floor(robot.x / tileWidth)
 	local robRow = math.floor(robot.y / tileHeight)
 	local dist = math.abs(col - robCol) + math.abs(row - robRow)

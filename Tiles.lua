@@ -38,3 +38,10 @@ function checkTileCollisionAt(x, y)
 	local tile = getTileAt(x, y)
 	return tile.up
 end
+
+function tileInBounds(row, col)
+	if (row > 0 and col > 0 and row <= gridSize and col <= gridSize) then
+		return true
+	end
+	return false
+end

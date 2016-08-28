@@ -20,6 +20,8 @@ function love.load()
 		table.insert(explosionFrames, love.graphics.newImage(string.format("sprites/explosion/%.4u.png", i)))
 	end
 	robot.sprite = love.graphics.newImage("sprites/blob.png")
+	robot.x = tileWidth * gridSize / 2
+	robot.y = tileHeight * gridSize / 4
 	tiles = createTiles(gridSize, gridSize)
 	
 	table.insert(enemies.pool, enemy.create(400, 500))
@@ -65,6 +67,13 @@ end
 
 function love.draw()
 
+	love.graphics.setColor(50, 200, 255, 150)
+	-- draw temple
+	love.graphics.rectangle("fill", tileWidth, 0, gridSize * tileWidth, tileHeight)
+	
+	love.graphics.setColor(255, 255, 255, 255)
+	
+	-- draw grid of tiles
 	for i, row in ipairs(tiles) do
 		for j, tile in ipairs(row) do
 			local mode = "line"
@@ -73,6 +82,21 @@ function love.draw()
 		end
 	end
 	
+	-- draw tiles within robot's range
+	love.graphics.setColor(0, 255, 0, 100)
+	local robCol = math.floor(robot.x / tileWidth)
+	local robRow = math.floor(robot.y / tileHeight)
+	local n = 0
+	for r = robRow-robot.range, robRow+robot.range do
+		for c = robCol - n, robCol + n do
+			if  tileInBounds(r, c) then
+				love.graphics.rectangle("fill", c*tileWidth, r*tileHeight, tileWidth, tileHeight)
+			end
+		end
+		if r < robRow then n = n + 1 else n = n - 1 end
+	end
+	
+	-- draw enemies
 	for _, en in ipairs(enemies.pool) do
 		love.graphics.setColor(255, 0, 0, 150)
 		love.graphics.circle("fill", en.x, en.y, 20)
@@ -80,10 +104,12 @@ function love.draw()
 	
 	love.graphics.setColor(255, 255, 255, 255)
 	
+	-- draw explosions
 	for i, explosion in ipairs(explosions) do
 		Animation.draw(explosion, explosion.x, explosion.y)
 	end
 
+	-- draw laser
 	if laserIsOn then
 		local x, y = love.mouse.getPosition()
 		love.graphics.setColor(255, 0, 0, 200)
@@ -91,7 +117,8 @@ function love.draw()
 		love.graphics.line(robot.x, robot.y-20, x, y)
 		love.graphics.setColor(255, 255, 255, 255)
 	end
-
+	
+	-- draw robot
 	love.graphics.draw(robot.sprite, robot.x, robot.y, 0, 1, 1, robot.sprite:getWidth() / 2, robot.sprite:getHeight() * 0.8)
 	love.graphics.setColor(255, 255, 255, 255)
 end
