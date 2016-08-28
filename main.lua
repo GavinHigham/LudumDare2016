@@ -2,7 +2,32 @@
 
 	Ancient Technology Ludumn Dare Game Jam 2016
 	By: Gavin Higham, Josh Maurer, and Tai Enrico
-
+	
+	TODO:
+	
+		GRAPHICS
+		- Tile graphics
+		- Temple graphic
+		- Add background mountains
+		- Add tile animations for raising/lowering
+		- Depth handling for graphics
+		
+		SOUND
+		- Add sounds for tiles raising/lowering
+		
+		GAMEPLAY
+		- Enemy spawning (enemies spawn at the bottom of the screen)
+		- Enemy movement logic (enemies will update steering every half second)
+			- Enemy A* path finding to top of screen
+		- Enemy collision with robot and raised tiles (destroyed if hit raised tile)
+		
+		- Robot health
+		- Robot energy system
+		- Robot melee attack to kill enemies (slow cooldown, 1 hit kill, robot is slow)
+		- Robot projectile (collides with enemies and tiles, slow fire rate, 1 hit kill)
+		- prevent robot from raising tile when an enemy is on it (tile "canRaise" property)
+		
+		- lose condition when enemy reaches temple for x-amount of time
 ]]
 
 require("Animation")
