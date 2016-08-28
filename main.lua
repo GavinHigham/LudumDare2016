@@ -54,6 +54,33 @@ function love.update(dt)
 end
 
 function robot.update()
+	local move = true
+	local dir = 0
+	if love.keyboard.isScancodeDown("w") and love.keyboard.isScancodeDown("d") then
+		dir = math.pi / -4
+	elseif love.keyboard.isScancodeDown("s") and love.keyboard.isScancodeDown("d") then
+		dir = math.pi / 4
+	elseif love.keyboard.isScancodeDown("s") and love.keyboard.isScancodeDown("a") then
+		dir = 3 * math.pi / 4
+	elseif love.keyboard.isScancodeDown("w") and love.keyboard.isScancodeDown("a") then
+		dir = 5 * math.pi / 4
+	elseif love.keyboard.isScancodeDown("w") then
+		dir = 3 * math.pi / 2
+	elseif love.keyboard.isScancodeDown("s") then
+		dir = math.pi / 2
+	elseif love.keyboard.isScancodeDown("a") then
+		dir = math.pi
+	elseif love.keyboard.isScancodeDown("d") then
+		dir = 0
+	else
+		move = false
+	end
+	
+	if move then
+		robot.tryToMoveIn(dir)
+	end
+	
+	--[[
 	if love.keyboard.isScancodeDown("w") then
 		robot.y = robot.y - robot.vel
 	end
@@ -66,6 +93,7 @@ function robot.update()
 	if love.keyboard.isScancodeDown("d") then
 		robot.x = robot.x + robot.vel
 	end
+	]]
 end
 
 function robot.checkRange(x, y)
@@ -81,14 +109,32 @@ function robot.checkRange(x, y)
 	end
 end
 
+function robot.tryToMoveIn(dir)
+	local piOverFour = math.pi / 4
+	local ax = robot.x + (tileWidth / 2 + robot.vel) * math.cos(dir)
+	local ay = robot.y + (tileHeight / 2 + robot.vel) * math.sin(dir)
+	local bx = robot.x + (tileWidth / 2 + robot.vel) * math.cos(dir + piOverFour)
+	local by = robot.y + (tileHeight / 2 + robot.vel) * math.sin(dir + piOverFour)
+	local cx = robot.x + (tileWidth / 2 + robot.vel) * math.cos(dir - piOverFour)
+	local cy = robot.y + (tileHeight / 2 + robot.vel) * math.sin(dir - piOverFour)
+	local vel = robot.vel
+	
+	if checkTileCollisionAt(ax, ay) then
+		vel = 0
+	elseif checkTileCollisionAt(bx, by) and not checkTileCollisionAt(cx, cy) then
+		dir = dir - piOverFour
+	elseif checkTileCollisionAt(cx, cy) and not checkTileCollisionAt(bx, by) then
+		dir = dir + piOverFour
+	end
+	
+	robot.x = robot.x + vel * math.cos(dir)
+	robot.y = robot.y + vel * math.sin(dir)
+end
+
 -- clear all tiles
 function love.keypressed(key)
 	if key == "space" then
-		for _, row in pairs(tiles) do
-			for _, tile in pairs(row) do
-				tile.up = false
-			end
-		end
+		clearTiles()
 	end
 end
 

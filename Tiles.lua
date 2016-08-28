@@ -17,6 +17,14 @@ function createTiles(numcols, numrows)
 	return tiles
 end
 
+function clearTiles()
+	for _, row in pairs(tiles) do
+		for _, tile in pairs(row) do
+			tile.up = false
+		end
+	end
+end
+
 function getTileAt(x, y)
 	local col = math.floor(x / tileWidth)
 	local row = math.floor(y / tileHeight)
