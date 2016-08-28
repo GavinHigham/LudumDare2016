@@ -39,17 +39,22 @@ enemies = {numAlive = 1, maxAlive = 100, pool = {}}
 
 explosions = {}
 
-function love.load()
+function loadImages()
 	explosionFrames = {}
 	for i = 1, 100 do
 		table.insert(explosionFrames, love.graphics.newImage(string.format("sprites/explosion/%.4u.png", i)))
 	end
 	robot.sprite = love.graphics.newImage("sprites/blob.png")
+	backgroundImage = love.graphics.newImage("sprites/background.png")
+end
+
+function love.load()
+	loadImages()
 	robot.x = tileWidth * gridSize / 2
 	robot.y = tileHeight * gridSize / 4
 	tiles = createTiles(gridSize, gridSize)
 	
-	table.insert(enemies.pool, enemy.create(400, 500))
+	table.insert(enemies.pool, Enemy.new(400, 500))
 end
 
 function love.update(dt)
@@ -91,7 +96,8 @@ function love.keypressed(key)
 end
 
 function love.draw()
-
+	-- draw background
+	love.graphics.draw(backgroundImage)
 	love.graphics.setColor(50, 200, 255, 150)
 	-- draw temple
 	love.graphics.rectangle("fill", tileWidth, 0, gridSize * tileWidth, tileHeight)

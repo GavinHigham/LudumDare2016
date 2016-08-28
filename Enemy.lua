@@ -5,10 +5,10 @@
 
 ]]
 
-enemy = {}
-enemy.__index = enemy
+Enemy = {}
+Enemy.__index = Enemy
 
-function enemy.create(xi, yi)
+function Enemy.new(xi, yi)
 	local en = {}
 	setmetatable(en, enemy)
 	en.x = xi
@@ -21,13 +21,13 @@ function enemy.create(xi, yi)
 	return en
 end
 
-function enemy:update()
+function Enemy:update()
 	this:transition()
 	this:action()
 	this.currentState = this.nextState
 end
 
-function enemy:action()
+function Enemy:action()
 	if (this.currentState == "Seek") then
 		this:updatePosition()
 	elseif (this.currentState == "Attack") then 
@@ -41,7 +41,7 @@ function enemy:action()
 	end
 end
 
-function enemy:transition()
+function Enemy:transition()
 	if (this.currentState == "Seek") then
 		this.nextState = this:checkPreSeek()
 	elseif (this.currentState == "Attack") then 
