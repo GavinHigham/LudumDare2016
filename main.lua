@@ -6,29 +6,12 @@
 ]]
 
 require("Animation")
+require("Tiles")
 explosions = {}
 
 maxEngergy = 50
-robot = {x = 400, y = 300, vel = 1, sprite = nil, energy = maxEngergy}
-tiles = nil
+robot = {x = 400, y = 300, vel = 1, sprite = nil, energy = maxEngergy, range = 5}
 laserIsOn = false
-
-function createTile()
-	local tile = {up = false}
-	return tile
-end
-
-function createTiles(numcols, numrows)
-	local tiles = {}
-	for i = 1, numrows do
-		local row = {}
-		for j = 1, numcols do
-			table.insert(row, createTile())
-		end
-		table.insert(tiles, row)
-	end
-	return tiles
-end
 
 function love.load()
 	explosionFrames = {}
@@ -37,7 +20,6 @@ function love.load()
 	end
 	robot.sprite = love.graphics.newImage("sprites/blob.png")
 	tiles = createTiles(gridSize, gridSize)
-	tiles[2][2].up = true
 end
 
 function love.update(dt)
@@ -63,7 +45,7 @@ function love.update(dt)
 	
 	if love.mouse.isDown(2) then
 		local tile = getTileAt(mx, my)
-		if tile ~= nil then
+		if tile ~= nil and robot.checkRange(mx, my) then
 			tile.up = true
 		end
 	end
@@ -86,6 +68,19 @@ function robot.update()
 	end
 end
 
+function robot.checkRange(x, y)
+	local col = math.floor(x / tileWidth)
+	local row = math.floor(y / tileHeight)
+	local robCol = math.floor(robot.x / tileWidth)
+	local robRow = math.floor(robot.y / tileHeight)
+	local dist = math.abs(col - robCol) + math.abs(row - robRow)
+	if (dist <= robot.range and dist > 0) then
+		return true
+	else
+		return false
+	end
+end
+
 -- clear all tiles
 function love.keypressed(key)
 	if key == "space" then
@@ -95,15 +90,6 @@ function love.keypressed(key)
 			end
 		end
 	end
-end
-
-function getTileAt(x, y)
-	local col = math.floor(x / tileWidth)
-	local row = math.floor(y / tileHeight)
-	if col < 1 or row < 1 or col > gridSize or row > gridSize then
-		return nil
-	end
-	return tiles[col][row]
 end
 
 function love.draw()
@@ -128,5 +114,6 @@ function love.draw()
 		love.graphics.setColor(255, 255, 255, 255)
 	end
 
-	love.graphics.draw(robot.sprite, robot.x, robot.y)
+	love.graphics.draw(robot.sprite, robot.x, robot.y, 0, 1, 1, robot.sprite:getWidth() / 2, robot.sprite:getHeight() * 0.8)
+	love.graphics.setColor(255, 255, 255, 255)
 end
