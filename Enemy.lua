@@ -5,44 +5,55 @@
 
 ]]
 
-currentState = "Seek"
-enemyIsStunned = false
-enemyStunDuration = 30
-nextState = "Seek"
+enemy = {}
+enemy.__index = enemy
 
-function enemyUpdate()
-	transitionFunction()
-	enemyAction()
-	currentState = nextState
+function enemy.create(xi, yi)
+	local en = {}
+	setmetatable(en, enemy)
+	en.x = xi
+	en.y = yi
+	en.currentState = "Seek"
+	en.nextState = "Seek"
+	en.isStunned = false
+	en.isDead = false
+	en.stunDur = 30
+	return en
 end
 
-function enemyAction()
-	if (currentState == "Seek") then
-		enemyPositionUpdate()
-	else if (currentState == "Attack") then 
-		enemyDoAttack()
-	else if (currentState == "Stunned") then
-		enemyIsStunned = true
-	else if (currentState == "Death") then
-		enemyIsDead()
+function enemy:update()
+	this:transition()
+	this:action()
+	this.currentState = this.nextState
+end
+
+function enemy:action()
+	if (this.currentState == "Seek") then
+		this:updatePosition()
+	elseif (this.currentState == "Attack") then 
+		this:attack()
+	elseif (this.currentState == "Stunned") then
+		this.isStunned = true
+	elseif (this.currentState == "Death") then
+		this.isDead = true
 	else
-		currentState == "Seek"
+		this.currentState = "Seek"
 	end
 end
 
-function transitionFunction()
-	if (currentState == "Seek") then
-		nextState = checkPreSeek()
-	else if (currentState == "Attack") then 
-		nextState = "Seek"
-	else if (currentState == "Stunned") then
-		if (enemyStunDuration >0) then 
-			enemyStunDuration = enemyStunDuration -1;
+function enemy:transition()
+	if (this.currentState == "Seek") then
+		this.nextState = this:checkPreSeek()
+	elseif (this.currentState == "Attack") then 
+		this.nextState = "Seek"
+	elseif (this.currentState == "Stunned") then
+		if (this.stunDur >0) then 
+			this.stunDur = this.stunDur -1;
 		else
-			enemyStunDuration = 30
-			nextState = "Seek"
+			this.stunDur = 30
+			this.nextState = "Seek"
 		end
 	else
-		currentState == "Seek"
+		this.currentState = "Seek"
 	end
 end

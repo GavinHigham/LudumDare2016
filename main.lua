@@ -7,10 +7,14 @@
 
 require("Animation")
 require("Tiles")
+require("Enemy")
+
+enemies = {numAlive = 1, maxAlive = 100, pool = {}}
+
 explosions = {}
 
 maxEngergy = 50
-robot = {x = 400, y = 300, vel = 1, sprite = nil, energy = maxEngergy, range = 5}
+robot = {x = 400, y = 300, vel = 1, sprite = nil, energy = maxEnergy, range = 5}
 laserIsOn = false
 
 function love.load()
@@ -20,6 +24,8 @@ function love.load()
 	end
 	robot.sprite = love.graphics.newImage("sprites/blob.png")
 	tiles = createTiles(gridSize, gridSize)
+	
+	table.insert(enemies.pool, enemy.create(400, 500))
 end
 
 function love.update(dt)
@@ -79,21 +85,6 @@ function robot.update()
 	if move then
 		robot.tryToMoveIn(dir)
 	end
-	
-	--[[
-	if love.keyboard.isScancodeDown("w") then
-		robot.y = robot.y - robot.vel
-	end
-	if love.keyboard.isScancodeDown("s") then
-		robot.y = robot.y + robot.vel
-	end
-	if love.keyboard.isScancodeDown("a") then
-		robot.x = robot.x - robot.vel
-	end
-	if love.keyboard.isScancodeDown("d") then
-		robot.x = robot.x + robot.vel
-	end
-	]]
 end
 
 function robot.checkRange(x, y)
@@ -147,7 +138,14 @@ function love.draw()
 			love.graphics.rectangle(mode, i*tileWidth, j*tileHeight, tileWidth, tileHeight)
 		end
 	end
-
+	
+	for _, en in ipairs(enemies.pool) do
+		love.graphics.setColor(255, 0, 0, 150)
+		love.graphics.circle("fill", en.x, en.y, 20)
+	end
+	
+	love.graphics.setColor(255, 255, 255, 255)
+	
 	for i, explosion in ipairs(explosions) do
 		Animation.draw(explosion, explosion.x, explosion.y)
 	end
@@ -156,7 +154,7 @@ function love.draw()
 		local x, y = love.mouse.getPosition()
 		love.graphics.setColor(255, 0, 0, 200)
 		love.graphics.setLineWidth(2)
-		love.graphics.line(robot.x+30, robot.y+30, x, y)
+		love.graphics.line(robot.x, robot.y-20, x, y)
 		love.graphics.setColor(255, 255, 255, 255)
 	end
 
