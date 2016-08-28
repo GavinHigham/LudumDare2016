@@ -7,10 +7,11 @@
 
 require("Animation")
 explosions = {}
-robot = {x = 400, y = 300, vel = 1, sprite = nil}
+
+maxEngergy = 50
+robot = {x = 400, y = 300, vel = 1, sprite = nil, energy = maxEngergy}
 tiles = nil
 laserIsOn = false
-tileWidth, tileHeight = 100, 100
 
 function createTile()
 	local tile = {up = false}
@@ -35,7 +36,7 @@ function love.load()
 		table.insert(explosionFrames, love.graphics.newImage(string.format("sprites/explosion/%.4u.png", i)))
 	end
 	robot.sprite = love.graphics.newImage("sprites/blob.png")
-	tiles = createTiles(15, 15)
+	tiles = createTiles(gridSize, gridSize)
 	tiles[2][2].up = true
 end
 
@@ -47,16 +48,26 @@ function love.update(dt)
 		end
 	end
 	Animation.update(dt)
+	
+	local mx, my = love.mouse.getPosition()
+	
 	if love.mouse.isDown(1) then
 		local newExplosion = Animation.new(explosionFrames)
-		local x, y = love.mouse.getPosition()
-		newExplosion.x = x-18
-		newExplosion.y = y-85
+		newExplosion.x = mx-18
+		newExplosion.y = my-85
 		table.insert(explosions, newExplosion)
 		laserIsOn = true
 	else
 		laserIsOn = false
 	end
+	
+	if love.mouse.isDown(2) then
+		local tile = getTileAt(mx, my)
+		if tile ~= nil then
+			tile.up = true
+		end
+	end
+	
 	robot.update()
 end
 
@@ -73,6 +84,26 @@ function robot.update()
 	if love.keyboard.isScancodeDown("d") then
 		robot.x = robot.x + robot.vel
 	end
+end
+
+-- clear all tiles
+function love.keypressed(key)
+	if key == "space" then
+		for _, row in pairs(tiles) do
+			for _, tile in pairs(row) do
+				tile.up = false
+			end
+		end
+	end
+end
+
+function getTileAt(x, y)
+	local col = math.floor(x / tileWidth)
+	local row = math.floor(y / tileHeight)
+	if col < 1 or row < 1 or col > gridSize or row > gridSize then
+		return nil
+	end
+	return tiles[col][row]
 end
 
 function love.draw()
