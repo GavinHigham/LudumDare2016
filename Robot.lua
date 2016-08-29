@@ -1,5 +1,5 @@
-maxEngergy = 50
-robot = {x = 400, y = 300, vel = 1, sprite = nil, energy = maxEnergy, range = 5}
+maxEnergy = 20
+robot = {x = 400, y = 300, vel = 2, sprite = nil, energy = maxEnergy, range = 7}
 laserIsOn = false
 
 function robot.update()

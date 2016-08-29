@@ -6,10 +6,7 @@
 	TODO:
 	
 		GRAPHICS
-		- Tile graphics
 		- Temple graphic
-		- Add background mountains
-		- Add tile animations for raising/lowering
 		- Depth handling for graphics
 		
 		SOUND
@@ -35,7 +32,7 @@ require("Tiles")
 require("Enemy")
 require("Robot")
 
-enemies = {numAlive = 1, maxAlive = 100, pool = {}}
+enemies = {numAlive = 1, maxAlive = 150, pool = {}}
 
 explosions = {}
 
@@ -56,7 +53,7 @@ function love.load()
 	robot.y = tileHeight * gridSize / 4
 	tiles = createTiles(gridSize, gridSize)
 	
-	table.insert(enemies.pool, Enemy.new(400, 500))
+	table.insert(enemies.pool, Enemy:new(400, 500))
 end
 
 function love.update(dt)
@@ -70,6 +67,7 @@ function love.update(dt)
 	
 	local mx, my = love.mouse.getPosition()
 	
+	--[[
 	if love.mouse.isDown(1) then
 		local newExplosion = Animation.new(explosionFrames)
 		newExplosion.x = mx-18
@@ -79,21 +77,58 @@ function love.update(dt)
 	else
 		laserIsOn = false
 	end
+	]]
 	
-	if love.mouse.isDown(2) then
+	if love.mouse.isDown(1) then
 		local tile = getTileAt(mx, my)
 		if tile ~= nil and robot.checkRange(mx, my) then
-			tile.up = true
+			if (robot.energy > 0 and not tile.up) then
+				robot.energy = robot.energy - 1
+				tile.up = true
+			end
 		end
 	end
 	
 	robot.update()
+	
+	if (love.math.random() < 0.02 and enemies.numAlive < enemies.maxAlive) then
+		enemies.numAlive = enemies.numAlive + 10
+		table.insert(enemies.pool, 
+			Enemy:new(
+				(love.math.random(gridSize - 1) + 0.5) * tileWidth,
+				tileHeight * (gridSize + 0.5)))
+	end
+	
+	local deadEnemies = {}
+	local numDead = 0
+	
+	for i, en in ipairs(enemies.pool) do
+		en.y = en.y - 1
+		if doesEnemyDie(en.x, en.y) then
+			local newExplosion = Animation.new(explosionFrames)
+			newExplosion.x = en.x - 18
+			newExplosion.y = en.y - 85
+			table.insert(explosions, newExplosion)
+			table.insert(deadEnemies, i)
+			numDead = numDead + 1
+		elseif (en.y < tileHeight) then
+			love.event.quit()
+		end
+	end
+	
+	enemies.numAlive = enemies.numAlive - numDead
+	
+	for i, j in ipairs(deadEnemies) do
+		table.remove(enemies.pool, j - (i - 1))
+	end
+	
 end
 
 -- clear all tiles
 function love.keypressed(key)
 	if key == "space" then
 		clearTiles()
+		robot.energy = maxEnergy
 	end
 end
 
@@ -119,7 +154,7 @@ function love.draw()
 	end
 	
 	-- draw tiles within robot's range
-	love.graphics.setColor(0, 255, 0, 100)
+	love.graphics.setColor(0, 255, 0, 50)
 	local robCol = math.floor(robot.x / tileWidth)
 	local robRow = math.floor(robot.y / tileHeight)
 	local n = 0
@@ -133,9 +168,9 @@ function love.draw()
 	end
 	
 	-- draw enemies
+	love.graphics.setColor(255, 0, 0, 255)
 	for _, en in ipairs(enemies.pool) do
-		love.graphics.setColor(255, 0, 0, 150)
-		love.graphics.circle("fill", en.x, en.y, 20)
+		love.graphics.circle("fill", en.x, en.y, 10)
 	end
 	
 	love.graphics.setColor(255, 255, 255, 255)
@@ -157,4 +192,27 @@ function love.draw()
 	-- draw robot
 	love.graphics.draw(robot.sprite, robot.x, robot.y, 0, 1, 1, robot.sprite:getWidth() / 2, robot.sprite:getHeight() * 0.8)
 	love.graphics.setColor(255, 255, 255, 255)
+end
+
+function doesEnemyDie(x, y)
+	local dir = 3 * math.pi / 2
+	local piOverFour = math.pi / 4
+	local vel = 1
+	local ax = x + (tileWidth / 2 + vel) * math.cos(dir)
+	local ay = y + (tileHeight / 2 + vel) * math.sin(dir)
+	local bx = x + (tileWidth / 2 + vel) * math.cos(dir + piOverFour)
+	local by = y + (tileHeight / 2 + vel) * math.sin(dir + piOverFour)
+	local cx = x + (tileWidth / 2 + vel) * math.cos(dir - piOverFour)
+	local cy = y + (tileHeight / 2 + vel) * math.sin(dir - piOverFour)
+	
+	
+	if checkTileCollisionAt(ax, ay) then
+		return true
+	elseif checkTileCollisionAt(bx, by) and not checkTileCollisionAt(cx, cy) then
+		return true
+	elseif checkTileCollisionAt(cx, cy) and not checkTileCollisionAt(bx, by) then
+		return true
+	end
+	
+	return false
 end

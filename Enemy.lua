@@ -8,7 +8,7 @@
 Enemy = {}
 Enemy.__index = Enemy
 
-function Enemy.new(xi, yi)
+function Enemy:new(xi, yi)
 	local en = {}
 	setmetatable(en, enemy)
 	en.x = xi
@@ -19,6 +19,10 @@ function Enemy.new(xi, yi)
 	en.isDead = false
 	en.stunDur = 30
 	return en
+end
+
+function Enemy:move()
+	self.y = self.y - 2
 end
 
 function Enemy:update()

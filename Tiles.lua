@@ -35,7 +35,13 @@ function getTileAt(x, y)
 end
 
 function checkTileCollisionAt(x, y)
+	if not coordInBounds(x, y) then
+		return false
+	end
 	local tile = getTileAt(x, y)
+	if (tile == nil) then
+		return false
+	end
 	return tile.up
 end
 
@@ -44,4 +50,12 @@ function tileInBounds(row, col)
 		return true
 	end
 	return false
+end
+
+function coordInBounds(x, y)
+	if (x >= tileWidth and y >= tileHeight and x <= tileWidth * (gridSize + 1) and y <= tileHeight * (gridSize + 1)) then
+		return true
+	else
+		return false
+	end
 end
