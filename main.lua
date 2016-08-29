@@ -46,6 +46,8 @@ function loadImages()
 	end
 	robot.sprite = love.graphics.newImage("sprites/blob.png")
 	backgroundImage = love.graphics.newImage("sprites/background.png")
+	tileUp = love.graphics.newImage("sprites/tile0001.png")
+	tileDown = love.graphics.newImage("sprites/tile0002.png")
 end
 
 function love.load()
@@ -107,9 +109,12 @@ function love.draw()
 	-- draw grid of tiles
 	for i, row in ipairs(tiles) do
 		for j, tile in ipairs(row) do
-			local mode = "line"
-			if tile.up then mode = "fill" end
-			love.graphics.rectangle(mode, i*tileWidth, j*tileHeight, tileWidth, tileHeight)
+			local x, y = i*tileWidth, j*tileHeight - tileHeight
+			if tile.up then
+				love.graphics.draw(tileUp, x, y)
+			else
+				love.graphics.draw(tileDown, x, y)
+			end
 		end
 	end
 	
